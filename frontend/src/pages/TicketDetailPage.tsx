@@ -31,7 +31,7 @@ export function TicketDetailPage() {
   const [actionError, setActionError] = useState<string | null>(null);
 
   function goBack() {
-    // "default" = abriu o link direto, não tem para onde voltar
+    // "default" = opened directly, there is no history to go back to
     if (location.key === "default") navigate("/tickets");
     else navigate(-1);
   }
@@ -48,7 +48,7 @@ export function TicketDetailPage() {
       setData(await updateTicketStatus(ticket.id, target));
     } catch (err) {
       setActionError(getErrorMessage(err));
-      // 409: alguém mudou antes, recarrega para mostrar o estado atual
+      // 409: someone changed it first, reload to show the current state
       if (err instanceof ApiError && err.status === 409) reload();
     } finally {
       setPendingStatus(null);

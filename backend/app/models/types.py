@@ -10,7 +10,7 @@ def utcnow() -> datetime:
 
 
 class UTCDateTime(TypeDecorator[datetime]):
-    """Grava em UTC e devolve com timezone (o SQLite não guarda fuso)."""
+    """Stores UTC and returns timezone-aware values (SQLite drops the offset)."""
 
     impl = DateTime
     cache_ok = True
@@ -29,7 +29,7 @@ class UTCDateTime(TypeDecorator[datetime]):
 
 
 def enum_column(enum_cls: type[PyEnum]) -> Enum:
-    """Guarda o valor do enum como texto em vez de um enum nativo do banco."""
+    """Stores the enum value as text instead of a native DB enum."""
     return Enum(
         enum_cls,
         native_enum=False,

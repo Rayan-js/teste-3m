@@ -1,4 +1,4 @@
-"""Cria tickets de exemplo.
+"""Creates sample tickets.
 
     python -m app.seed
     python -m app.seed --reset
@@ -21,7 +21,7 @@ WORKFLOW = [
     TicketStatus.CLOSED,
 ]
 
-# (título, descrição, categoria, prioridade, status atual, horas desde a criação)
+# (title, description, category, priority, current status, hours since creation)
 SAMPLE_TICKETS = [
     (
         "Notebook não liga",

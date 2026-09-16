@@ -12,7 +12,7 @@ from app.main import app
 
 @pytest.fixture
 def db_session() -> Iterator[Session]:
-    # uma conexão em memória para o teste inteiro, senão cada request veria um banco diferente
+    # one in-memory connection for the whole test, otherwise each request would see a different database
     engine = create_engine(
         "sqlite://",
         connect_args={"check_same_thread": False},

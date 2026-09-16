@@ -42,7 +42,7 @@ def list_tickets(db: Session, query: TicketListQuery) -> tuple[list[Ticket], int
 
     direction = asc if query.order == SortOrder.ASC else desc
     if query.sort_by == SortField.PRIORITY:
-        # na mesma prioridade, quem espera há mais tempo vem primeiro
+        # same priority: the ticket waiting the longest comes first
         ordering = [direction(_priority_rank), Ticket.created_at.asc(), Ticket.id.asc()]
     else:
         ordering = [direction(Ticket.created_at), direction(Ticket.id)]

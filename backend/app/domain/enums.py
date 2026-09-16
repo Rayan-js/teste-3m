@@ -23,7 +23,7 @@ class TicketCategory(StrEnum):
     OTHER = "other"
 
 
-# ordenar a coluna direto daria ordem alfabética, por isso o peso numérico
+# numeric weight: sorting the column directly would give alphabetical order
 PRIORITY_RANK: dict[TicketPriority, int] = {
     TicketPriority.LOW: 1,
     TicketPriority.MEDIUM: 2,

@@ -21,7 +21,7 @@ class Ticket(Base):
     )
     created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow, index=True)
     updated_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)
-    # lock otimista: duas mudanças simultâneas no mesmo ticket, a segunda falha
+    # optimistic lock: on two concurrent changes, the second one fails
     version: Mapped[int] = mapped_column()
 
     history: Mapped[list["StatusChange"]] = relationship(

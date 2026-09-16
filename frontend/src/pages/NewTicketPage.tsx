@@ -6,7 +6,7 @@ import { createTicket } from "../api/tickets";
 import { CATEGORIES, CATEGORY_LABELS, PRIORITIES, PRIORITY_LABELS } from "../constants/tickets";
 import type { TicketCategory, TicketPriority } from "../types/ticket";
 
-// tem que bater com a validação do backend (app/schemas/ticket.py)
+// must match the backend validation (app/schemas/ticket.py)
 const TITLE_MIN = 3;
 const TITLE_MAX = 120;
 const DESCRIPTION_MIN = 10;
@@ -91,7 +91,7 @@ export function NewTicketPage() {
         category: values.category,
         priority: values.priority,
       });
-      // replace para o voltar não cair no formulário preenchido
+      // replace so "back" doesn't land on the filled form
       navigate(`/tickets/${ticket.id}`, { replace: true, state: { created: true } });
     } catch (error) {
       if (error instanceof ApiError) showErrors(error.fieldErrors);

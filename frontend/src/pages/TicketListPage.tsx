@@ -16,7 +16,7 @@ export function TicketListPage() {
   const { data, error, loading, reload } = useAsync(loadTickets);
 
   const totalPages = data ? Math.max(1, Math.ceil(data.total / data.page_size)) : 1;
-  // URL apontando para uma página que não existe mais
+  // URL pointing to a page that no longer exists
   const pageOutOfRange = data !== null && data.items.length === 0 && data.total > 0;
 
   useEffect(() => {

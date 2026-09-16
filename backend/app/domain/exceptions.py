@@ -2,7 +2,7 @@ from app.domain.enums import TicketStatus
 
 
 class DomainError(Exception):
-    """Erro de regra de negócio."""
+    """Business rule violation."""
 
 
 class TicketNotFoundError(DomainError):

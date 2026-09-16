@@ -26,7 +26,7 @@ interface ValidationIssue {
 function toApiError(status: number, body: unknown): ApiError {
   const detail = (body as { detail?: unknown } | null)?.detail;
 
-  // erro de negócio vem como string, erro de validação vem como lista de campos
+  // business errors come as a string, validation errors as a list of fields
   if (typeof detail === "string") {
     return new ApiError(detail, status);
   }

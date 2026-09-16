@@ -13,7 +13,7 @@ function oneOf<T extends string>(value: string | null, allowed: readonly T[]): T
   return allowed.find((option) => option === value);
 }
 
-/** Filtros e página ficam na URL, então dá para recarregar e compartilhar o link. */
+/** Filters and page live in the URL, so the view survives a reload and can be shared. */
 export function useTicketListParams() {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -38,7 +38,7 @@ export function useTicketListParams() {
           if (value === undefined) next.delete(key);
           else next.set(key, String(value));
         }
-        // mudou filtro ou ordenação, volta para a primeira página
+        // filter or sorting changed, go back to the first page
         if (!("page" in changes)) next.delete("page");
         return next;
       });

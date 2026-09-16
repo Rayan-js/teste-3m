@@ -12,7 +12,7 @@ from app.routers import health, tickets
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
-    # sem migrations por enquanto
+    # no migrations yet
     Base.metadata.create_all(bind=engine)
     yield
 

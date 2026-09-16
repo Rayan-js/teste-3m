@@ -6,7 +6,7 @@ interface AsyncState<T> {
   loading: boolean;
 }
 
-/** Cancela a requisição anterior e mantém os dados antigos na tela enquanto recarrega. */
+/** Aborts the previous request and keeps the old data on screen while reloading. */
 export function useAsync<T>(loader: (signal: AbortSignal) => Promise<T>) {
   const [state, setState] = useState<AsyncState<T>>({ data: null, error: null, loading: true });
   const [attempt, setAttempt] = useState(0);

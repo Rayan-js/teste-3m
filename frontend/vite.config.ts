@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      // 127.0.0.1 e não localhost: o Node resolve para IPv6 e o uvicorn escuta em IPv4
+      // 127.0.0.1 instead of localhost: Node resolves to IPv6 and uvicorn listens on IPv4
       "/api": "http://127.0.0.1:8000",
     },
   },

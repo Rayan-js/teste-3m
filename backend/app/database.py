@@ -21,7 +21,7 @@ def _enable_sqlite_foreign_keys(dbapi_connection, _connection_record) -> None:
 
 
 def _connect_args(database_url: str) -> dict:
-    # o FastAPI roda as rotas síncronas em uma thread pool
+    # FastAPI runs sync routes in a thread pool
     if database_url.startswith("sqlite"):
         return {"check_same_thread": False}
     return {}

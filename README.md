@@ -1,12 +1,14 @@
-# Portal de tickets de suporte
+# Support ticket portal
 
-Teste técnico. Portal interno de chamados: o funcionário abre o ticket, o time de suporte acompanha, filtra e movimenta pelo fluxo de status.
+Technical assessment. An internal support portal: employees open tickets, and the support team tracks, filters and moves them through the status workflow.
 
-Backend em FastAPI com SQLite, frontend em React com TypeScript.
+FastAPI with SQLite on the backend, React with TypeScript on the frontend.
 
-## Rodando o projeto
+A note on languages: code, comments and the API contract are in English, while the interface and the error messages shown to users are in Portuguese, since the end users are Brazilian employees.
 
-Precisa de Python 3.11+ e Node 18+.
+## Running the project
+
+Requires Python 3.11+ and Node 18+.
 
 **Backend**
 
@@ -17,13 +19,13 @@ python -m venv .venv
 source .venv/bin/activate     # Linux / macOS
 
 pip install -r requirements-dev.txt
-python -m app.seed            # opcional, cria 12 tickets de exemplo
+python -m app.seed            # optional, creates 12 sample tickets
 uvicorn app.main:app --reload
 ```
 
-A API sobe em http://127.0.0.1:8000 e o Swagger fica em `/docs`. O banco (`tickets.db`) é criado sozinho na primeira execução. Para recriar os dados de exemplo: `python -m app.seed --reset`.
+The API runs on http://127.0.0.1:8000 and Swagger is at `/docs`. The database (`tickets.db`) is created on the first run. To rebuild the sample data: `python -m app.seed --reset`.
 
-**Frontend**, em outro terminal:
+**Frontend**, in another terminal:
 
 ```bash
 cd frontend
@@ -31,55 +33,55 @@ npm install
 npm run dev
 ```
 
-Abre em http://localhost:5173. O Vite já faz proxy de `/api` para o backend, então não precisa configurar nada.
+Opens at http://localhost:5173. Vite already proxies `/api` to the backend, so there is nothing else to configure.
 
-**Testes**: `pytest` dentro de `backend` (45 testes, cobrindo a API e o fluxo de status). No frontend, `npm run build` roda a checagem de tipos junto com o build.
+**Tests**: run `pytest` inside `backend` (45 tests covering the API and the status workflow). On the frontend, `npm run build` runs the type check along with the build.
 
-As variáveis de ambiente são todas opcionais, estão nos `.env.example`: `DATABASE_URL` e `CORS_ORIGINS` no backend, `VITE_API_URL` no frontend (só é necessária se você não usar o proxy do Vite).
+Environment variables are all optional and documented in the `.env.example` files: `DATABASE_URL` and `CORS_ORIGINS` on the backend, `VITE_API_URL` on the frontend (only needed if you are not using the Vite proxy).
 
-## Organização
+## Layout
 
 ```
 backend/
   app/
-    main.py        criação do app, CORS, rotas
-    config.py      configuração por variável de ambiente
-    database.py    engine e sessão
-    errors.py      erro de domínio -> status HTTP
-    seed.py        dados de exemplo
-    domain/        regras de negócio (enums, fluxo de status, exceções)
-    models/        tabelas
-    schemas/       entrada e saída da API
-    services/      criar, listar, detalhar, mudar status
+    main.py        app creation, CORS, routes
+    config.py      configuration through environment variables
+    database.py    engine and session
+    errors.py      domain error -> HTTP status
+    seed.py        sample data
+    domain/        business rules (enums, status workflow, exceptions)
+    models/        tables
+    schemas/       API input and output
+    services/      create, list, detail, change status
     routers/       endpoints
   tests/
 frontend/
   src/
-    api/           cliente HTTP e chamadas da API
-    components/    tabela, filtros, badges, histórico, estados de tela
-    constants/     rótulos em português e opções dos filtros
-    hooks/         carregamento assíncrono e parâmetros da listagem
-    pages/         listagem, detalhe, novo ticket
-    types/         tipos espelhando os contratos da API
+    api/           HTTP client and API calls
+    components/    table, filters, badges, history, screen states
+    constants/     Portuguese labels and filter options
+    hooks/         async loading and list parameters
+    pages/         list, detail, new ticket
+    types/         types mirroring the API contracts
 ```
 
-No backend o caminho é sempre `router -> service -> model`. O router só cuida de HTTP (parâmetros, status code, serialização) e o service executa o caso de uso. O que é regra de negócio de verdade (quais transições de status valem, o peso de cada prioridade) fica em `domain/`, sem depender de framework, o que deixa o teste dessa parte bem direto.
+On the backend the path is always `router -> service -> model`. The router only deals with HTTP (parameters, status codes, serialization) and the service runs the use case. What is actually a business rule (which status transitions are valid, how much each priority weighs) lives in `domain/`, with no framework dependency, which keeps those tests very direct.
 
 ## API
 
-Tudo sob `/api`, JSON, datas em UTC no formato ISO.
+Everything under `/api`, JSON, dates in UTC using ISO format.
 
-| Método | Rota | O que faz | Erros |
+| Method | Route | What it does | Errors |
 |---|---|---|---|
-| `GET` | `/tickets` | Lista com filtros, ordenação e paginação | 422 |
-| `POST` | `/tickets` | Cria o ticket (201 + header `Location`) | 422 |
-| `GET` | `/tickets/{id}` | Detalhe com histórico e próximos status válidos | 404 |
-| `PATCH` | `/tickets/{id}/status` | Avança o status | 404, 409, 422 |
-| `GET` | `/health` | Healthcheck | |
+| `GET` | `/tickets` | List with filters, sorting and pagination | 422 |
+| `POST` | `/tickets` | Creates the ticket (201 + `Location` header) | 422 |
+| `GET` | `/tickets/{id}` | Detail with history and valid next statuses | 404 |
+| `PATCH` | `/tickets/{id}/status` | Moves the status forward | 404, 409, 422 |
+| `GET` | `/health` | Health check | |
 
-Filtros do `GET /tickets`: `status` (`open`, `in_progress`, `resolved`, `closed`), `category` (`it`, `facilities`, `hr`, `finance`, `other`) e `priority` (`low`, `medium`, `high`, `urgent`). Ordenação com `sort_by` (`created_at` ou `priority`) e `order` (`asc` ou `desc`), padrão mais recentes primeiro. Paginação com `page` e `page_size`.
+Filters on `GET /tickets`: `status` (`open`, `in_progress`, `resolved`, `closed`), `category` (`it`, `facilities`, `hr`, `finance`, `other`) and `priority` (`low`, `medium`, `high`, `urgent`). Sorting through `sort_by` (`created_at` or `priority`) and `order` (`asc` or `desc`), defaulting to newest first. Pagination through `page` and `page_size`.
 
-Criando um ticket:
+Creating a ticket:
 
 ```http
 POST /api/tickets
@@ -92,51 +94,58 @@ POST /api/tickets
 }
 ```
 
-A resposta traz o ticket, o `history` (a criação já entra como `null -> open`) e `allowed_transitions`, que é a lista de status para onde aquele ticket pode ir a partir de agora. Mudar o status é um `PATCH /api/tickets/{id}/status` com `{"status": "in_progress"}`.
+The response carries the ticket, its `history` (creation is recorded as `null -> open`) and `allowed_transitions`, the list of statuses that ticket can move to from where it is now. Changing the status is a `PATCH /api/tickets/{id}/status` with `{"status": "in_progress"}`.
 
-Erro de negócio vem como `{"detail": "mensagem"}` e erro de validação vem no formato padrão do FastAPI, com a lista dos campos inválidos.
+Business errors come back as `{"detail": "message"}`, and validation errors use the standard FastAPI format with the list of invalid fields.
 
-## Decisões
+## Decisions
 
-**FastAPI.** A maior parte do trabalho aqui é validar entrada e devolver JSON, que é justamente onde o Pydantic resolve quase tudo sozinho. De quebra o Swagger sai de graça, o que ajuda a testar a API sem Postman. Django traria admin, templates e ORM próprio que eu não ia usar.
+**FastAPI.** Most of the work here is validating input and returning JSON, which is exactly what Pydantic handles on its own. Swagger comes for free on top of that, which makes the API easy to try out without Postman. Django would have brought an admin, templates and its own ORM that this project would not use.
 
-**SQLite com SQLAlchemy.** Escolhi pensando em quem vai avaliar: clona, instala e roda, sem subir serviço nenhum. Como o acesso todo passa pelo SQLAlchemy, migrar para Postgres é trocar a `DATABASE_URL` e o driver. Cheguei a considerar salvar em JSON, mas filtro, ordenação, paginação e o relacionamento do histórico ficariam bem mais frágeis na mão do que em SQL.
+**SQLite with SQLAlchemy.** I picked it with the reviewer in mind: clone, install and run, with no service to stand up. Since all access goes through SQLAlchemy, moving to Postgres means changing `DATABASE_URL` and the driver. I did consider storing everything in a JSON file, but filtering, sorting, pagination and the ticket-to-history relationship would all be far more fragile by hand than in SQL.
 
-**Histórico em tabela separada.** Cada mudança é uma linha com status de origem, destino e data. Fica sendo uma trilha que não se altera, e depois dá para acrescentar quem mudou ou um comentário sem mexer na tabela de tickets.
+**History in its own table.** Every change is a row with the source status, the target status and a timestamp. That gives an audit trail that is never rewritten, and later it can carry who made the change or a comment without touching the tickets table.
 
-**A regra do fluxo mora no backend.** O mapa de transições permitidas está em um lugar só (`app/domain/workflow.py`) e a API responde 409 se alguém tentar pular etapa, mesmo chamando por fora da interface. O detalhe do ticket devolve `allowed_transitions`, então a tela só mostra os botões válidos sem repetir a regra em JavaScript.
+**The workflow rule lives on the backend.** The map of allowed transitions sits in one place (`app/domain/workflow.py`) and the API answers 409 if anyone tries to skip a step, even when calling it outside the interface. The ticket detail returns `allowed_transitions`, so the screen only renders valid buttons without repeating the rule in JavaScript.
 
-**Endpoint próprio para o status** em vez de um `PATCH /tickets/{id}` genérico. Mudar status não é edição comum: tem validação própria e gera histórico. Endpoint separado deixa isso explícito e evita que um update genérico fure o fluxo.
+**A dedicated endpoint for the status** instead of a generic `PATCH /tickets/{id}`. Changing status is not an ordinary edit: it has its own validation and it writes history. A separate endpoint makes that explicit and keeps a generic update from bypassing the workflow.
 
-**Ordenação por prioridade com peso numérico.** Ordenando a coluna direto o resultado sairia em ordem alfabética (alta, baixa, média, urgente), que não quer dizer nada. A query usa um `CASE` mapeando cada prioridade para um número. Empatou, o mais antigo vem primeiro, que é quem está esperando há mais tempo.
+**Sorting by priority with numeric weights.** Sorting the column directly would return alphabetical order (`high, low, medium, urgent`), which means nothing to a support team. The query uses a `CASE` mapping each priority to a number. On a tie the oldest ticket comes first, since that is the one that has been waiting the longest.
 
-**Coluna `version` no ticket.** Se duas pessoas do suporte mexerem no mesmo ticket ao mesmo tempo, a segunda recebe 409 em vez de sobrescrever a primeira sem ninguém perceber. A tela recarrega o ticket para mostrar como ele está de fato.
+**A `version` column on the ticket.** If two people from support act on the same ticket at the same time, the second one gets a 409 instead of silently overwriting the first. The screen reloads the ticket to show its real state.
 
-**Sem biblioteca de estado no frontend.** O escopo é pequeno e um hook com `AbortController` já resolve carregando/erro e cancela a requisição anterior, evitando que a resposta lenta de um filtro antigo sobrescreva a tela. Em um projeto maior eu usaria TanStack Query pelo cache.
+**No state library on the frontend.** The scope is small, and a hook with `AbortController` already covers loading and error states while cancelling the previous request, so a slow response from an older filter never overwrites the current screen. On a larger project I would reach for TanStack Query because of the caching.
 
-Os filtros ficam na URL, então dá para recarregar a página ou mandar o link já filtrado para alguém.
+Filters live in the URL, so the page can be reloaded and a filtered view can be shared as a link.
 
-## O que eu assumi
+## Assumptions
 
-- Não tem login. Funcionário e suporte usam a mesma interface, e qualquer um pode abrir ticket ou mudar status.
-- O fluxo é linear: só avança uma etapa por vez, não volta, e Fechado é final.
-- Categorias fixas: TI, Instalações, RH, Financeiro e Outros.
-- Ticket não é editado nem apagado depois de criado.
-- O formulário já vem com prioridade Média preenchida, categoria é obrigatória escolher.
+**No authentication, and this was a deliberate call.** The brief names two actors, the employee who submits and the support team who manages, but it does not ask for login. Building half of an authentication system (tokens without refresh, weak password storage) would be worse than not building it at all, and it would consume the time budget of the exercise. So both personas share the same interface here.
 
-## Limitações
+What that means in practice: anyone can open a ticket, which matches how a support portal actually works, and anyone can move the status, which is the part real authentication would restrict. With login in place, the role would come from the session, the frontend would render the transition buttons only for support, and the backend would enforce that permission the same way it already enforces the status workflow today.
 
-- As tabelas são criadas no startup, sem Alembic. Resolve para protótipo, mas não versiona mudança de schema.
-- SQLite tem escrita concorrente limitada. Para um time pequeno serve, para uso pesado não.
-- Paginação por offset, que é simples mas perde desempenho em volume grande.
-- A validação existe nos dois lados (o backend é a fonte da verdade, o frontend é para dar resposta imediata), então os limites precisam ser mantidos em sincronia na mão.
-- Os testes estão no backend, onde estão as regras. No frontend eu contei com o TypeScript.
+**Tickets do not record who opened them.** This is the gap I would close first. Support can see the ticket but not who to reply to. With authentication the requester comes from the session; without it, a requester field on the form solves it. I left it out to keep the data model aligned with the decision above rather than inventing an identity the system cannot verify.
 
-## Com mais tempo
+Other assumptions:
 
-- Login com perfis: funcionário enxerga os próprios tickets, suporte enxerga todos, e o histórico registra quem mudou o quê.
-- Responsável pelo ticket e comentários na conversa.
-- Reabrir ticket resolvido informando o motivo.
-- Alembic e Postgres.
-- Testes de componente com Vitest e um teste end to end do fluxo principal.
-- Busca por texto e filtro com mais de um valor por campo.
+- The workflow is strictly linear: one step forward at a time, no going back, and Closed is final.
+- Fixed categories: IT, Facilities, HR, Finance and Other.
+- Tickets are not edited or deleted after creation.
+- The form starts with Medium priority selected, and choosing a category is mandatory.
+
+## Limitations
+
+- Tables are created at startup, without Alembic. Fine for a prototype, but it does not version schema changes.
+- SQLite has limited concurrent writes. Good enough for a small team, not for heavy usage.
+- Offset pagination, which is simple but degrades on large volumes.
+- Validation exists on both sides (the backend is the source of truth, the frontend is there for immediate feedback), so the limits have to be kept in sync by hand.
+- Tests are on the backend, where the rules are. On the frontend I relied on TypeScript.
+
+## With more time
+
+- Login with roles: an employee sees their own tickets, support sees the queue, and the history records who changed what.
+- A requester and an assignee on each ticket, plus comments.
+- Reopening a resolved ticket with a required reason.
+- Alembic and Postgres.
+- Component tests with Vitest and an end-to-end test of the main flow.
+- Full-text search and multi-value filters.
